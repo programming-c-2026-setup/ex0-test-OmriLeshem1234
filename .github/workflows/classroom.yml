@@ -1,0 +1,33 @@
+name: Autograding Tests
+'on':
+- push
+- repository_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: hello word test
+      id: hello-word-test
+      uses: classroom-resources/autograding-io-grader@v1
+      with:
+        test-name: hello word test
+        setup-command: gcc -o runme main.c
+        command: "./runme"
+        input: ''
+        expected-output: Hello World!
+        comparison-method: exact
+        timeout: 10
+        max-score: 100
+    - name: Autograding Reporter
+      uses: classroom-resources/autograding-grading-reporter@v1
+      env:
+        HELLO-WORD-TEST_RESULTS: "${{steps.hello-word-test.outputs.result}}"
+      with:
+        runners: hello-word-test
